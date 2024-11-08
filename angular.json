@@ -1,0 +1,74 @@
+{
+  "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
+  "version": 1,
+  "newProjectRoot": "projects",
+  "projects": {
+    "ngBase-lib": {
+      "projectType": "library",
+      "root": "projects/ng-base-lib",
+      "sourceRoot": "projects/ng-base-lib/src",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-ng-packagr:build",
+          "options": {
+            "tsConfig": "projects/ng-base-lib/tsconfig.lib.json",
+            "project": "projects/ng-base-lib/ng-package.json"
+          }
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "main": "projects/ng-base-lib/src/test.ts",
+            "tsConfig": "projects/ng-base-lib/tsconfig.spec.json",
+            "karmaConfig": "projects/ng-base-lib/karma.conf.js"
+          }
+        },
+        "lint": {
+          "builder": "@angular-devkit/build-angular:tslint",
+          "options": {
+            "tsConfig": [
+              "projects/ng-base-lib/tsconfig.lib.json",
+              "projects/ng-base-lib/tsconfig.spec.json"
+            ],
+            "exclude": ["**/node_modules/**"]
+          }
+        }
+      }
+    },
+    "ngx-super-dashboard": {
+      "projectType": "library",
+      "root": "projects/ngx-super-dashboard",
+      "sourceRoot": "projects/ngx-super-dashboard/src",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-ng-packagr:build",
+          "options": {
+            "tsConfig": "projects/ngx-super-dashboard/tsconfig.lib.json",
+            "project": "projects/ngx-super-dashboard/ng-package.json"
+          }
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "main": "projects/ngx-super-dashboard/src/test.ts",
+            "tsConfig": "projects/ngx-super-dashboard/tsconfig.spec.json",
+            "karmaConfig": "projects/ngx-super-dashboard/karma.conf.js"
+          }
+        },
+        "lint": {
+          "builder": "@angular-devkit/build-angular:tslint",
+          "options": {
+            "tsConfig": [
+              "projects/ngx-super-dashboard/tsconfig.lib.json",
+              "projects/ngx-super-dashboard/tsconfig.spec.json"
+            ],
+            "exclude": ["**/node_modules/**"]
+          }
+        }
+      }
+    }
+  },
+  "defaultProject": "ngx-super-dashboard"
+}
