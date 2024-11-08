@@ -125,7 +125,7 @@ import { ChartSelectionChangedEvent, ChartType } from "angular-google-charts";
               <h3>{{ chart.cardTitle }}</h3>
             </div>
             <google-chart
-              style="width: 100%; height: 90%"
+              style="width: 100%; height: 88%"
               [type]="chart.type"
               [data]="chart.chartData"
               [columns]="chart.chartOptionData.myColumns"
@@ -418,7 +418,7 @@ import { ChartSelectionChangedEvent, ChartType } from "angular-google-charts";
         justify-content: center;
       }
 
-      .verticalTemp .grid-area-countCards .card-header {
+      .grid-area-countCards .card-header {
         height: 45px;
         display: flex;
         align-items: center;
@@ -442,6 +442,11 @@ import { ChartSelectionChangedEvent, ChartType } from "angular-google-charts";
       .grid-area-tableOne {
         grid-area: 3/2/-1/4;
       }
+      
+      .grid-area-tableOne .card {
+        width: 40vw;
+        height:40vh;
+      }
 
       .horizontalTemp .grid-area-tableOne {
         grid-area: 3/1/-1/2;
@@ -457,7 +462,8 @@ import { ChartSelectionChangedEvent, ChartType } from "angular-google-charts";
 
       .horizontalTemp .grid-area-tableOne .card {
         width: 98%;
-        height: 97%;
+        height:250px;
+        max-height: 350px;
         overflow:auto;
       }
 
@@ -514,6 +520,8 @@ import { ChartSelectionChangedEvent, ChartType } from "angular-google-charts";
 
       .horizontalTemp .grid-area-tableRecords .card {
         width: 98%;
+        height:250px;
+        max-height: 350px;
       }
 
       .verticalTemp .grid-area-tableRecords .card {
