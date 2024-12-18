@@ -10,7 +10,7 @@ export class NgxSuperDashboardService {
 
   constructor() {}
 
-  setdataBindToField(val: SelectedFieldValueEmit[]) {
+  setDataBindToField(val: SelectedFieldValueEmit[]) {
     this._dataBindToField.next(val);
   }
 

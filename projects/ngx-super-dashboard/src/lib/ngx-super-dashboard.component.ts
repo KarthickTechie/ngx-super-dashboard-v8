@@ -687,8 +687,6 @@ export class NgxSuperDashboardComponent implements OnInit {
   @Input()
   noteText!: string;
 
-  @Input() bindDataToField: SelectedFieldValueEmit[];
-
   @Output() onSelect = new EventEmitter<SelectedFieldValueEmit>();
   @Output() onSubmit = new EventEmitter<Record<string, string | number>>();
   @Output() onSelectTemplate = new EventEmitter<string>();
@@ -713,8 +711,8 @@ export class NgxSuperDashboardComponent implements OnInit {
       });
     }
 
-    // console.log(this.dynamicFormFieldData);
-    this.ngxDashboardService._dataBindToField.subscribe((bindDataToField) => {
+    //subscribe data from _dataBindToField and bind data to fields 
+    this.ngxDashboardService._dataBindToField.subscribe((bindDataToField:SelectedFieldValueEmit[]) => {
       if (bindDataToField && bindDataToField.length > 0) {
         bindDataToField.forEach((item) => {
           this.dynamicForm
@@ -808,7 +806,6 @@ export const testFieldData: DynamicFieldsData[] = [
       { value: "1", name: "Porur" },
       { value: "2", name: "Tnagar" },
     ],
-    selected: "2",
   },
   { lable: "Teams", formControlKey: "teams", lovDataList: [] },
   { lable: "Product", formControlKey: "product", lovDataList: [] },

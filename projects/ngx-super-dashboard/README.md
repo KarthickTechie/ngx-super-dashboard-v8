@@ -444,3 +444,49 @@ export interface GridTableConfigData {
 // Child Data Type
 export type ChildDataType = string | number;
 ```
+
+## Version 0.0.8 Changes
+
+1. Data Bind to form fields in two ways
+
+ a. Default bind data on creation of Form Fields by using `selected` property
+```
+export interface DynamicFieldsData {
+  lable: string;
+  formControlKey: string;
+  lovDataList?: AppLOVData[];
+  type?: string;
+  className?: string;
+  selected?: string | number;
+}
+
+```
+b. Based on requirment, bind array of data to multiple fileds by using service method is setDataBindToFie(aurg)
+Inject NgxSuperDashboardService service in constructor, then call setDataBindToField()
+
+```
+Example:
+
+constructor(
+@Inject(NgxSuperDashboardService) private ngxData: NgxSuperDashboardService
+){}
+
+let filedDataset = [{selectedValue:1, fieldControlName:'zone'}]
+this.ngxData.setDataBindToField()
+
+export interface SelectedFieldValueEmit {
+  selectedValue: string | number;
+  fieldControlName: string;
+}
+
+```
+2. Changed background color of Count Cards
+
+3. Swap the cards and charts position
+
+4. Removed Selected template option and fixed horizontal ui
+
+
+
+
+
