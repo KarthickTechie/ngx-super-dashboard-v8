@@ -69,27 +69,12 @@ import { NgxSuperDashboardService } from "./ngx-super-dashboard.service";
 
           <div class="list lastList">
             <div class="lable">
-              <!-- *Accounts in Actuals <br />
-              *Ammount in Lakhs -->
               {{ noteText }}
             </div>
           </div>
         </div>
       </form>
     </div>
-
-    <!-- <div class="template-box">
-      <select
-        class="form-ctrl"
-        (change)="selectTemplate($event)"
-      >
-        <option selected value="">Select Template</option>
-        <option [value]="temp.value" *ngFor="let temp of templateList">
-          {{ temp.name }}
-        </option>
-      </select>
-    </div> -->
-
     <div
       class="horizontalTemp grid-container"
       [style.margin-top]="dynamicFormFieldData.length > 7 ? '4.4rem' : '3rem'"
@@ -349,6 +334,7 @@ import { NgxSuperDashboardService } from "./ngx-super-dashboard.service";
         color: #fff;
         width: 118px;
         padding: 0 6px;
+        font-size: 12px;
       }
       select::-ms-expand {
         display: none; /* Hide the default arrow in Internet Explorer 10 and Internet Explorer 11 */
@@ -386,12 +372,6 @@ import { NgxSuperDashboardService } from "./ngx-super-dashboard.service";
         gap: 0px;
       }
 
-      .verticalTemp.grid-container {
-        grid-template-columns: auto auto auto auto auto;
-        grid-template-rows: auto auto auto;
-        gap: 12px;
-      }
-
       .card {
         box-shadow: 0 1px 5px 0 rgba(0, 0, 0, 0.2);
         margin: 5px 0 12px 0;
@@ -420,10 +400,10 @@ import { NgxSuperDashboardService } from "./ngx-super-dashboard.service";
 
       .card p {
         font-weight: 600;
-        font-size: 20px;
+        font-size: 24px;
         color: #f0f2f4;
         margin-top: 0px;
-        margin-bottom: 14px;
+        margin-bottom: 12px;
       }
 
       .horizontalTemp .card {
@@ -444,7 +424,7 @@ import { NgxSuperDashboardService } from "./ngx-super-dashboard.service";
 
       .grid-area-countCards .card-header {
         // height: 45px;
-        height: 35px;
+        height: 32px;
         display: flex;
         border-bottom: none;
         align-items: center;
@@ -487,10 +467,6 @@ import { NgxSuperDashboardService } from "./ngx-super-dashboard.service";
         grid-area: 3/1/-1/-1;
       }
 
-      .verticalTemp .grid-area-tableOne {
-        grid-area: 2/2/-1/4;
-      }
-
       .horizontalTemp .grid-area-tableOne .card {
         width: 98%;
         height: 250px;
@@ -498,19 +474,9 @@ import { NgxSuperDashboardService } from "./ngx-super-dashboard.service";
         overflow: auto;
       }
 
-      .verticalTemp .grid-area-tableOne .card {
-        width: 40vw;
-        height: 40vh;
-      }
-
       .horizontalTemp .grid-area-chart {
         grid-area: 2/1/3/-1;
         display: flex;
-      }
-
-      .verticalTemp .grid-area-chart {
-        grid-area: 1/2/2/4;
-        display: grid;
       }
 
       .grid-area-chart .card {
@@ -523,15 +489,7 @@ import { NgxSuperDashboardService } from "./ngx-super-dashboard.service";
         width: 49%;
       }
 
-      .verticalTemp .grid-area-chart .card {
-        width: 40vw;
-      }
-
       .grid-area-tableRecords {
-        grid-area: 1/4/-1/-1;
-      }
-
-      .verticalTemp .grid-area-tableRecords {
         grid-area: 1/4/-1/-1;
       }
 
@@ -553,10 +511,6 @@ import { NgxSuperDashboardService } from "./ngx-super-dashboard.service";
         width: 98%;
         height: 250px;
         max-height: 350px;
-      }
-
-      .verticalTemp .grid-area-tableRecords .card {
-        width: 36vw;
       }
 
       .grid-area-tableRecords .card-content {
@@ -666,23 +620,15 @@ import { NgxSuperDashboardService } from "./ngx-super-dashboard.service";
   ],
 })
 export class NgxSuperDashboardComponent implements OnInit {
-  dynamicForm!: FormGroup;
-  seletedTemp = "select";
-  templateList = [
-    { value: "horizontalTemp", name: "Horizontal" },
-    { value: "verticalTemp", name: "Vertical" },
-  ];
+  public dynamicForm: FormGroup
   @Input()
-  dynamicFormFieldData!: DynamicFieldsData[];
+  dynamicFormFieldData: DynamicFieldsData[];
 
-  @Input() cardConfig!: DynamicCardsData[];
+  @Input() cardConfig: DynamicCardsData[];
 
-  @Input() chartsConfig!: DashardCardConfig[];
-  @Input() gridOneConfig!: CardTableConfig;
-  @Input() gridTwoConfig!: GridTableConfigData;
-
-  @Input()
-  templateStyle!: TemplateType | TemplateType.Vertical;
+  @Input() chartsConfig: DashardCardConfig[];
+  @Input() gridOneConfig: CardTableConfig;
+  @Input() gridTwoConfig: GridTableConfigData;
 
   @Input()
   noteText!: string;
@@ -693,8 +639,7 @@ export class NgxSuperDashboardComponent implements OnInit {
   @Output() onSelectChart = new EventEmitter<ChartEventEmitOnSelect>();
 
   constructor(
-    private fb: FormBuilder,
-    private ngxDashboardService: NgxSuperDashboardService
+    private ngxService: NgxSuperDashboardService
   ) {
     console.log(`NgxSuperDashboardComponent : constructor`);
   }
@@ -710,27 +655,6 @@ export class NgxSuperDashboardComponent implements OnInit {
         el["color"] = colors[i];
       });
     }
-
-    //subscribe data from _dataBindToField and bind data to fields 
-    this.ngxDashboardService._dataBindToField.subscribe((bindDataToField:SelectedFieldValueEmit[]) => {
-      if (bindDataToField && bindDataToField.length > 0) {
-        bindDataToField.forEach((item) => {
-          this.dynamicForm
-            .get(item.fieldControlName)
-            .setValue(item.selectedValue);
-        });
-      }
-    });
-  }
-
-  selectTemplate(ev: any) {
-    this.seletedTemp = ev.target.value;
-    this.templateStyle = ev.target.value;
-    this.onSelectTemplate.emit(ev.target.value);
-  }
-
-  typeCheck(data: any) {
-    return data && Array.isArray(data) ? false : true;
   }
 
   createForm() {
@@ -738,14 +662,15 @@ export class NgxSuperDashboardComponent implements OnInit {
     this.dynamicFormFieldData.forEach((field: DynamicFieldsData) => {
       formGrp = {
         ...formGrp,
-        [field.formControlKey]: [
-          field.selected ? field.selected : "",
+        [field.formControlKey]: ["",
           Validators.compose([Validators.required]),
         ],
       };
     });
-    this.dynamicForm = this.fb.group(formGrp);
+    this.dynamicForm = new FormBuilder().group(formGrp);
+    this.ngxService.getFormGroup = this.dynamicForm;
   }
+
 
   // emit selected field value
   seletedValue(ev: any) {
@@ -777,11 +702,6 @@ export const CardsColors = [
   "#c39e56",
 ];
 
-export enum TemplateType {
-  Horizontal = "horizontalTemp",
-  Vertical = "verticalTemp",
-}
-
 export const DynamicFieldsConfiguration = (
   fieldConfig?: DynamicFieldsData[]
 ): DynamicFieldsData[] => {
@@ -797,7 +717,6 @@ export const testFieldData: DynamicFieldsData[] = [
       { value: "1", name: "Chennai" },
       { value: "2", name: "Pune" },
     ],
-    selected: "1",
   },
   {
     lable: "Branch",
@@ -824,7 +743,6 @@ export interface DynamicFieldsData {
   lovDataList?: AppLOVData[];
   type?: string;
   className?: string;
-  selected?: string | number;
 }
 
 export interface SelectedFieldValueEmit {
@@ -890,7 +808,6 @@ export const testChartsData: DashardCardConfig[] = [
           title: "No. Of Amount",
         },
         seriesType: "bars",
-        // series: { 4: { type: "line" } },
       },
     },
     chartData: [

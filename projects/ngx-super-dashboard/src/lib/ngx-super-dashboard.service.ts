@@ -1,17 +1,19 @@
 import { Injectable } from "@angular/core";
-import { SelectedFieldValueEmit } from "./ngx-super-dashboard.component";
-import { Subject } from "rxjs";
 
 @Injectable({
   providedIn: "root",
 })
 export class NgxSuperDashboardService {
-  public _dataBindToField = new Subject<SelectedFieldValueEmit[]>();
+
+  _formGroupSetting: any;
+
+  set getFormGroup(formGrp:any){
+    this._formGroupSetting = formGrp;
+  }
+  get getFormGroup(){
+    return this._formGroupSetting;
+  }
 
   constructor() {}
-
-  setDataBindToField(val: SelectedFieldValueEmit[]) {
-    this._dataBindToField.next(val);
-  }
 
 }
