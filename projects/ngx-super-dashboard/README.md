@@ -44,9 +44,6 @@ Usage of the component.
 
 [noteText]="searchBarText"
 
-[templateStyle]="templateType"
-
-(onSelectTemplate)="selectedTemp($event)"
 >
 
 </lib-ngx-super-dashboard>
@@ -313,33 +310,14 @@ it is displaying some hint or note text on search fields bar end
 noteText = '*Amount in lakhs'
 ```
 
-## 6. Template Style Change
-
-Template Style is providing two different ui. 
-
-1.Vertical
-2.Horizontal
-
-TemplateType is enum type
-
-```
-templateStyle =  TemplateType.Vertical or TemplateType.Horizontal
-```
-
 ## Event Emitters
 
 onSelect --- Selected Search Field Data emit with field form control name
 onSubmit --- On Submit Form Data
 onSelectChart -- Click on chart, it emit events and chartType
-onSelectTemplate -- Selected template type emit
 
 ## type definition
 ```
-
-export enum TemplateType {
-  Horizontal = "horizontalTemp",
-  Vertical = "verticalTemp",
-}
 
 export interface AppLOVData {
         name: string | number;
@@ -444,3 +422,33 @@ export interface GridTableConfigData {
 // Child Data Type
 export type ChildDataType = string | number;
 ```
+
+## Version 0.0.8 Changes
+
+1. Set initial value to Dropdown / Date fields of form by using getFormGroup setter in service.
+getFormGroup: is providing form controls to perform opration on form fields directly from your component.
+Inject NgxSuperDashboardService service in constructor in ts file.
+```
+Example:
+
+constructor(
+@Inject(NgxSuperDashboardService) private ngxData: NgxSuperDashboardService
+){}
+
+ngAfterViewInint(){
+  this.ngxData.getFormGroup.get('zone').setValue(1);
+}
+
+//
+
+```
+2. Changed background color of Count Cards.
+
+3. Swap the cards and charts position.
+
+4. Removed Selected template option and fixed horizontal ui
+
+
+
+
+
