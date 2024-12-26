@@ -8,11 +8,18 @@ import {
 } from "@angular/core";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { ChartSelectionChangedEvent, ChartType } from "angular-google-charts";
+import { NgxSuperDashboardService } from "./ngx-super-dashboard.service";
 
 @Component({
   selector: "lib-ngx-super-dashboard",
   template: `
-    <div class="fields-bar">
+    <div
+      [ngClass]="
+        dynamicFormFieldData && dynamicFormFieldData.length > 7
+          ? 'formsBar fields-bar-second'
+          : 'formsBar fields-bar'
+      "
+    >
       <form [formGroup]="dynamicForm" (ngSubmit)="onSubmitForm()">
         <div class="grid-label-bar" *ngIf="dynamicForm.value.length != 0">
           <ng-container
@@ -62,39 +69,24 @@ import { ChartSelectionChangedEvent, ChartType } from "angular-google-charts";
 
           <div class="list lastList">
             <div class="lable">
-              <!-- *Accounts in Actuals <br />
-              *Ammount in Lakhs -->
               {{ noteText }}
             </div>
           </div>
         </div>
       </form>
     </div>
-
-    <div class="template-box">
-      <select
-        class="form-ctrl"
-        (change)="selectTemplate($event)"
-      >
-        <option selected value="">Select Template</option>
-        <option [value]="temp.value" *ngFor="let temp of templateList">
-          {{ temp.name }}
-        </option>
-      </select>
-    </div>
-
-    <div [ngClass]="templateStyle + ' grid-container'">
+    <div
+      class="horizontalTemp grid-container"
+      [style.margin-top]="dynamicFormFieldData.length > 7 ? '4.4rem' : '3rem'"
+    >
       <div
         class="grid-area-countCards"
         *ngIf="cardConfig && cardConfig.length > 0"
       >
         <ng-container *ngFor="let item of cardConfig; let j = index">
           <div
-            [ngClass]="
-              item.className
-                ? item.className + ' card card-border-left'
-                : 'card card-border-left'
-            "
+            [ngClass]="item.className ? item.className + ' card' : 'card'"
+            [style.background-color]="item.color"
           >
             <div class="card-header">
               <h3>{{ item.title }}</h3>
@@ -276,19 +268,33 @@ import { ChartSelectionChangedEvent, ChartType } from "angular-google-charts";
         width: 100%;
       }
       .fields-bar {
+        height: 48px;
+      }
+      .formsBar {
         width: 100vw;
         position: fixed;
         top: 0;
         z-index: 999;
         background-color: #111249;
         display: flex;
-        align-items:center;
-        height:48px;
+        align-items: center;
       }
-      .grid-label-bar {
+      .fields-bar-second {
+        height: 75px;
+      }
+      .fields-bar-second .grid-label-bar {
+        grid-template-columns: auto auto auto auto auto auto;
+        padding: 2px 14px;
+      }
+      .fields-bar .grid-label-bar {
         grid-template-columns: auto auto auto auto auto auto auto;
         gap: 10px;
         padding: 5px 14px;
+      }
+      .grid-label-bar {
+        // grid-template-columns: auto auto auto auto auto auto auto;
+        gap: 10px;
+        // padding: 5px 14px;
         display: grid;
         color: #fff;
         font-size: 13px;
@@ -328,6 +334,7 @@ import { ChartSelectionChangedEvent, ChartType } from "angular-google-charts";
         color: #fff;
         width: 118px;
         padding: 0 6px;
+        font-size: 12px;
       }
       select::-ms-expand {
         display: none; /* Hide the default arrow in Internet Explorer 10 and Internet Explorer 11 */
@@ -356,19 +363,13 @@ import { ChartSelectionChangedEvent, ChartType } from "angular-google-charts";
         gap: 12px;
         background-color: #dddddd96;
         padding: 7px;
-        margin-top:3rem;
+        margin-top: 3rem;
       }
 
       .horizontalTemp.grid-container {
         grid-template-columns: auto auto;
         grid-template-rows: auto auto auto auto;
         gap: 0px;
-      }
-
-      .verticalTemp.grid-container {
-        grid-template-columns: auto auto auto auto auto;
-        grid-template-rows: auto auto auto;
-        gap: 12px;
       }
 
       .card {
@@ -399,8 +400,10 @@ import { ChartSelectionChangedEvent, ChartType } from "angular-google-charts";
 
       .card p {
         font-weight: 600;
-        font-size: 15px;
-        color: #853163;
+        font-size: 24px;
+        color: #f0f2f4;
+        margin-top: 0px;
+        margin-bottom: 12px;
       }
 
       .horizontalTemp .card {
@@ -409,20 +412,28 @@ import { ChartSelectionChangedEvent, ChartType } from "angular-google-charts";
       }
 
       .horizontalTemp .grid-area-countCards .card-content {
-        padding: 10px;
+        padding: 2px 10px 10px;
       }
-      .horizontalTemp .grid-area-countCards .card-header {
-        height: 45px;
+      // .horizontalTemp .grid-area-countCards .card-header {
+      //   // height: 45px;
+      //   height: 35px;
+      //   display: flex;
+      //   align-items: center;
+      //   justify-content: center;
+      // }
+
+      .grid-area-countCards .card-header {
+        // height: 45px;
+        height: 32px;
         display: flex;
+        border-bottom: none;
         align-items: center;
         justify-content: center;
       }
 
-      .grid-area-countCards .card-header {
-        height: 45px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
+      .grid-area-countCards h3 {
+        font-size: 14px;
+        color: #f0f2f4;
       }
 
       .grid-area-countCards {
@@ -430,7 +441,7 @@ import { ChartSelectionChangedEvent, ChartType } from "angular-google-charts";
       }
 
       .horizontalTemp .grid-area-countCards {
-        grid-area: 2/1/3/-1;
+        grid-area: 1/1/2/-1;
         display: flex;
       }
 
@@ -442,10 +453,10 @@ import { ChartSelectionChangedEvent, ChartType } from "angular-google-charts";
       .grid-area-tableOne {
         grid-area: 3/2/-1/4;
       }
-      
+
       .grid-area-tableOne .card {
         width: 40vw;
-        height:40vh;
+        height: 40vh;
       }
 
       .horizontalTemp .grid-area-tableOne {
@@ -456,30 +467,16 @@ import { ChartSelectionChangedEvent, ChartType } from "angular-google-charts";
         grid-area: 3/1/-1/-1;
       }
 
-      .verticalTemp .grid-area-tableOne {
-        grid-area: 2/2/-1/4;
-      }
-
       .horizontalTemp .grid-area-tableOne .card {
         width: 98%;
-        height:250px;
+        height: 250px;
         max-height: 350px;
-        overflow:auto;
-      }
-
-      .verticalTemp .grid-area-tableOne .card {
-        width: 40vw;
-        height:40vh;
+        overflow: auto;
       }
 
       .horizontalTemp .grid-area-chart {
-        grid-area: 1/1/2/-1;
+        grid-area: 2/1/3/-1;
         display: flex;
-      }
-
-      .verticalTemp .grid-area-chart {
-        grid-area: 1/2/2/4;
-        display: grid;
       }
 
       .grid-area-chart .card {
@@ -492,15 +489,7 @@ import { ChartSelectionChangedEvent, ChartType } from "angular-google-charts";
         width: 49%;
       }
 
-      .verticalTemp .grid-area-chart .card {
-        width: 40vw;
-      }
-
       .grid-area-tableRecords {
-        grid-area: 1/4/-1/-1;
-      }
-
-      .verticalTemp .grid-area-tableRecords {
         grid-area: 1/4/-1/-1;
       }
 
@@ -520,12 +509,8 @@ import { ChartSelectionChangedEvent, ChartType } from "angular-google-charts";
 
       .horizontalTemp .grid-area-tableRecords .card {
         width: 98%;
-        height:250px;
+        height: 250px;
         max-height: 350px;
-      }
-
-      .verticalTemp .grid-area-tableRecords .card {
-        width: 36vw;
       }
 
       .grid-area-tableRecords .card-content {
@@ -635,49 +620,41 @@ import { ChartSelectionChangedEvent, ChartType } from "angular-google-charts";
   ],
 })
 export class NgxSuperDashboardComponent implements OnInit {
-  dynamicForm!: FormGroup;
-  seletedTemp = "select";
-  templateList = [
-    { value: "horizontalTemp", name: "Horizontal" },
-    { value: "verticalTemp", name: "Vertical" },
-  ];
+  public dynamicForm: FormGroup
   @Input()
-  dynamicFormFieldData!: DynamicFieldsData[];
+  dynamicFormFieldData: DynamicFieldsData[];
 
-  @Input() cardConfig!: DynamicCardsData[];
+  @Input() cardConfig: DynamicCardsData[];
 
-  @Input() chartsConfig!: DashardCardConfig[];
-  @Input() gridOneConfig!: CardTableConfig;
-  @Input() gridTwoConfig!: GridTableConfigData;
-
-  @Input()
-  templateStyle!: TemplateType | TemplateType.Vertical;
+  @Input() chartsConfig: DashardCardConfig[];
+  @Input() gridOneConfig: CardTableConfig;
+  @Input() gridTwoConfig: GridTableConfigData;
 
   @Input()
   noteText!: string;
 
   @Output() onSelect = new EventEmitter<SelectedFieldValueEmit>();
   @Output() onSubmit = new EventEmitter<Record<string, string | number>>();
-@Output() onSelectTemplate = new EventEmitter<string>();
+  @Output() onSelectTemplate = new EventEmitter<string>();
   @Output() onSelectChart = new EventEmitter<ChartEventEmitOnSelect>();
 
-  constructor(private fb: FormBuilder) {
+  constructor(
+    private ngxService: NgxSuperDashboardService
+  ) {
     console.log(`NgxSuperDashboardComponent : constructor`);
   }
 
   ngOnInit() {
     //create dynamic fields and add validation for each field
     this.createForm();
-  }
 
-  selectTemplate(ev: any) {
-    this.seletedTemp = ev.target.value;
-    this.templateStyle = ev.target.value;
-    this.onSelectTemplate.emit(ev.target.value);
-  }
-
-  typeCheck(data: any) {
-    return data && Array.isArray(data) ? false : true;
+    //add colors to Count Cards
+    let colors: string[] = CardsColors;
+    if (this.cardConfig.length > 0) {
+      this.cardConfig.forEach((el, i) => {
+        el["color"] = colors[i];
+      });
+    }
   }
 
   createForm() {
@@ -685,11 +662,15 @@ export class NgxSuperDashboardComponent implements OnInit {
     this.dynamicFormFieldData.forEach((field: DynamicFieldsData) => {
       formGrp = {
         ...formGrp,
-        [field.formControlKey]: ["", Validators.compose([Validators.required])],
+        [field.formControlKey]: ["",
+          Validators.compose([Validators.required]),
+        ],
       };
     });
-    this.dynamicForm = this.fb.group(formGrp);
+    this.dynamicForm = new FormBuilder().group(formGrp);
+    this.ngxService.getFormGroup = this.dynamicForm;
   }
+
 
   // emit selected field value
   seletedValue(ev: any) {
@@ -711,10 +692,15 @@ export class NgxSuperDashboardComponent implements OnInit {
   }
 }
 
-export enum TemplateType {
-  Horizontal = "horizontalTemp",
-  Vertical = "verticalTemp",
-}
+export const CardsColors = [
+  "#d962be",
+  "#3e85f5",
+  "#5cdc79fc",
+  "#dc815cfc",
+  "#5cc0dc",
+  "#7b556c",
+  "#c39e56",
+];
 
 export const DynamicFieldsConfiguration = (
   fieldConfig?: DynamicFieldsData[]
@@ -724,8 +710,22 @@ export const DynamicFieldsConfiguration = (
 };
 
 export const testFieldData: DynamicFieldsData[] = [
-  { lable: "Zone", formControlKey: "zone", lovDataList: [] },
-  { lable: "Branch", formControlKey: "branch", lovDataList: [] },
+  {
+    lable: "Zone",
+    formControlKey: "zone",
+    lovDataList: [
+      { value: "1", name: "Chennai" },
+      { value: "2", name: "Pune" },
+    ],
+  },
+  {
+    lable: "Branch",
+    formControlKey: "branch",
+    lovDataList: [
+      { value: "1", name: "Porur" },
+      { value: "2", name: "Tnagar" },
+    ],
+  },
   { lable: "Teams", formControlKey: "teams", lovDataList: [] },
   { lable: "Product", formControlKey: "product", lovDataList: [] },
   { lable: "Start Date", formControlKey: "startDate", type: "date" },
@@ -808,7 +808,6 @@ export const testChartsData: DashardCardConfig[] = [
           title: "No. Of Amount",
         },
         seriesType: "bars",
-        // series: { 4: { type: "line" } },
       },
     },
     chartData: [
