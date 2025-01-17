@@ -1,19 +1,23 @@
 import { Injectable } from "@angular/core";
+import { Subject } from "rxjs";
+import { SelectedFieldValueEmit } from "./ngx-super-dashboard.component";
+
 
 @Injectable({
   providedIn: "root",
 })
 export class NgxSuperDashboardService {
 
-  _formGroupSetting: any;
+  formGroupSetting: any;
 
-  set getFormGroup(formGrp:any){
-    this._formGroupSetting = formGrp;
+ set getFormGroup(formGrp:any){
+    this.formGroupSetting = formGrp;
   }
   get getFormGroup(){
-    return this._formGroupSetting;
+    return this.formGroupSetting;
   }
 
   constructor() {}
+
 
 }
