@@ -440,8 +440,8 @@ export interface DynamicFieldsData {
 b. Based on requirment, bind array of data to multiple fileds by using service method is setDataBindToFie(aurg)
 Inject NgxSuperDashboardService service in constructor, then call setDataBindToField()
 
-1. Set initial value to Dropdown / Date fields of form by using getFormGroup setter in service.
-getFormGroup: is providing form controls to perform opration on form fields directly from your component.
+1. Set initial value to Dropdown / Date fields of form by using formGroupSetting setter in service.
+formGroupSetting: is providing form controls to perform opration on form fields directly from your component.
 Inject NgxSuperDashboardService service in constructor in ts file.
 ```
 Example:
