@@ -1,10 +1,13 @@
 import {
   ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   EventEmitter,
   Input,
+  OnChanges,
   OnInit,
   Output,
+  SimpleChanges,
 } from "@angular/core";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { ChartSelectionChangedEvent, ChartType } from "angular-google-charts";
@@ -28,7 +31,7 @@ import { NgxSuperDashboardService } from "./ngx-super-dashboard.service";
             <div
               [ngClass]="field.className ? field.className + ' list' : 'list'"
               *ngIf="
-                field.lovDataList && field.lovDataList.length > 0;
+                field.hasOwnProperty('lovDataList') && field.lovDataList;
                 else dynamicNonDropdown
               "
             >
@@ -86,7 +89,7 @@ import { NgxSuperDashboardService } from "./ngx-super-dashboard.service";
         <ng-container *ngFor="let item of cardConfig; let j = index">
           <div
             [ngClass]="item.className ? item.className + ' card' : 'card'"
-            [style.background-color]="item.color"
+            [style.background-color]="cardColors[j]"
           >
             <div class="card-header">
               <h3>{{ item.title }}</h3>
@@ -99,36 +102,65 @@ import { NgxSuperDashboardService } from "./ngx-super-dashboard.service";
       </div>
 
       <div
-        [ngClass]="
-          gridTwoConfig && gridTwoConfig !== null && gridTwoConfig !== undefined
-            ? 'grid-area-chart'
-            : 'grid-area-chart grid-area-expand'
-        "
+        id="{{ 'expand' + i }}"
+        class="grid-area-chart"
+        *ngFor="let chart of chartsConfig; let i = index"
       >
-        <ng-container *ngFor="let chart of chartsConfig">
-          <div
-            [ngClass]="
-              chart.className
-                ? chart.className + ' card card-border-bottom'
-                : 'card card-border-bottom'
-            "
-          >
-            <div class="card-header">
-              <h3>{{ chart.cardTitle }}</h3>
-            </div>
-            <google-chart
-              style="width: 100%; height: 88%"
-              [type]="chart.type"
-              [data]="chart.chartData"
-              [columns]="chart.chartOptionData.myColumns"
-              [options]="chart.chartOptionData.chartOptions"
-              (select)="selectedChart($event, chart.type)"
-            ></google-chart>
+        <!-- <ng-container *ngFor="let chart of chartsConfig; let i = index"> -->
+        <div
+          [ngClass]="
+            chart.className
+              ? chart.className + ' card card-border-bottom'
+              : 'card card-border-bottom'
+          "
+        >
+          <div class="card-header">
+            <h3>{{ chart.cardTitle }}</h3>
           </div>
-        </ng-container>
+          <google-chart
+            style="width: 100%; height: 80%"
+            [type]="chart.type"
+            [data]="chart.chartData"
+            [columns]="chart.chartOptionData.myColumns"
+            [options]="chart.chartOptionData.chartOptions"
+            (select)="selectedChart($event, chart.type)"
+          ></google-chart>
+        </div>
+        <div class="resizer" (click)="toggleExpand(i, 'expand' + i)">
+          <span class="resizeIcon" *ngIf="showIcon">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              height="15px"
+              viewBox="0 -960 960 960"
+              width="15px"
+              fill="#5f6368"
+            >
+              <path
+                d="M120-120v-320h80v184l504-504H520v-80h320v320h-80v-184L256-200h184v80H120Z"
+              />
+            </svg>
+            <span class="popupText">Expand</span>
+          </span>
+          <span class="resizeIcon" *ngIf="!showIcon">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              height="20px"
+              viewBox="0 -960 960 960"
+              width="20px"
+              fill="#5f6368"
+            >
+              <path
+                d="M440-440v240h-80v-160H200v-80h240Zm160-320v160h160v80H520v-240h80Z"
+              />
+            </svg>
+            <span class="popupText">Collapse</span>
+          </span>
+        </div>
+        <!-- </ng-container> -->
       </div>
 
       <div
+        id="expand2"
         [ngClass]="
           gridTwoConfig
             ? 'grid-area-tableOne'
@@ -174,9 +206,40 @@ import { NgxSuperDashboardService } from "./ngx-super-dashboard.service";
             </table>
           </div>
         </div>
+        <div class="resizer" (click)="toggleExpand(2, 'expand2')">
+          <span class="resizeIcon" *ngIf="showIcon">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              height="15px"
+              viewBox="0 -960 960 960"
+              width="15px"
+              fill="#5f6368"
+            >
+              <path
+                d="M120-120v-320h80v184l504-504H520v-80h320v320h-80v-184L256-200h184v80H120Z"
+              />
+            </svg>
+            <span class="popupText">Expand</span>
+          </span>
+          <span class="resizeIcon" *ngIf="!showIcon">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              height="20px"
+              viewBox="0 -960 960 960"
+              width="20px"
+              fill="#5f6368"
+            >
+              <path
+                d="M440-440v240h-80v-160H200v-80h240Zm160-320v160h160v80H520v-240h80Z"
+              />
+            </svg>
+            <span class="popupText">Collapse</span>
+          </span>
+        </div>
       </div>
 
       <div
+        id="expand3"
         [ngClass]="
           gridOneConfig
             ? 'grid-area-tableRecords'
@@ -232,18 +295,83 @@ import { NgxSuperDashboardService } from "./ngx-super-dashboard.service";
             </table>
           </div>
         </div>
+        <div class="resizer" (click)="toggleExpand(3, 'expand3')">
+          <span class="resizeIcon" *ngIf="showIcon">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              height="15px"
+              viewBox="0 -960 960 960"
+              width="15px"
+              fill="#5f6368"
+            >
+              <path
+                d="M120-120v-320h80v184l504-504H520v-80h320v320h-80v-184L256-200h184v80H120Z"
+              />
+            </svg>
+            <span class="popupText">Expand</span>
+          </span>
+          <span class="resizeIcon" *ngIf="!showIcon">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              height="20px"
+              viewBox="0 -960 960 960"
+              width="20px"
+              fill="#5f6368"
+            >
+              <path
+                d="M440-440v240h-80v-160H200v-80h240Zm160-320v160h160v80H520v-240h80Z"
+              />
+            </svg>
+            <span class="popupText">Collapse</span>
+          </span>
+        </div>
       </div>
     </div>
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
   styles: [
     `
-      .template-box {
-        // display: flex;
-        // justify-content: end;
-        // margin-top: 48px;
-        // background:#dddddd96;
+      .hideGrids {
+        display: none !important;
+      }
+      .resizeIcon {
+        position: relative;
+      }
 
+      .resizeIcon .popupText {
+        visibility: hidden;
+        width: 50px;
+        background-color: black;
+        font-size: 10px;
+        color: #fff;
+        text-align: center;
+        padding: 5px 0;
+        border-radius: 5px;
+        position: absolute;
+        bottom: 125%;
+        left: 35%;
+        transform: translateX(-50%);
+        z-index: 1;
+        opacity: 0;
+        transition: opacity 0.3s;
+      }
+
+      .resizeIcon .popupText::after {
+        content: "";
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        margin-left: -5px;
+        border-width: 5px;
+        border-style: solid;
+        border-color: black transparent transparent transparent;
+      }
+
+      .resizeIcon:hover .popupText {
+        visibility: visible;
+        opacity: 1;
+      }
+      .template-box {
         background: #111249;
         position: fixed;
         right: -45px;
@@ -251,6 +379,53 @@ import { NgxSuperDashboardService } from "./ngx-super-dashboard.service";
         top: 50%;
         text-align: center;
       }
+
+      .expanded {
+        grid-area: 2 / 1 / -1 / -1 !important;
+        justify-content: center;
+      }
+
+      .expanded google-chart {
+        width: 100% !important;
+        height: 90% !important;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .expanded.grid-area-tableOne .card,
+      .expanded.grid-area-chart .card {
+        width: 99%;
+        height: 400px;
+        overflow: auto;
+      }
+
+      .expanded.grid-area-tableRecords .card {
+        width: 99%;
+        height: 100%;
+      }
+      .expanded.grid-area-tableRecords .card-content {
+        height: 500px;
+        max-height: 1000px;
+        overflow: auto;
+      }
+
+      .resizer {
+        position: absolute;
+        width: 20px;
+        height: 20px;
+        right: 10px;
+        top: 10px;
+        cursor: pointer;
+        visibility: hidden;
+        background: #ead4d429;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0px 1px 10px 0px rgb(0 0 0 / 38%);
+        // cursor: ne-resize;
+      }
+
       .form-ctrl {
         display: block;
         padding: 5px 10px;
@@ -358,27 +533,30 @@ import { NgxSuperDashboardService } from "./ngx-super-dashboard.service";
       .grid-container {
         height: auto !important;
         display: grid;
-        grid-template-columns: auto auto auto auto auto;
-        grid-template-rows: auto auto auto;
-        gap: 12px;
+        grid-template-columns: auto auto;
+        grid-template-rows: auto auto auto auto;
+        gap: 0px;
         background-color: #dddddd96;
         padding: 7px;
         margin-top: 3rem;
       }
 
-      .horizontalTemp.grid-container {
-        grid-template-columns: auto auto;
-        grid-template-rows: auto auto auto auto;
-        gap: 0px;
-      }
+      // .horizontalTemp.grid-container {
+      //   grid-template-columns: auto auto;
+      //   grid-template-rows: auto auto auto auto;
+      //   gap: 0px;
+      // }
 
       .card {
         box-shadow: 0 1px 5px 0 rgba(0, 0, 0, 0.2);
-        margin: 5px 0 12px 0;
+        // margin: 5px 0 12px 0;
+        margin: 5px 6px 12px;
+        width: 20%;
         text-align: center;
         background-color: #fff;
-        width: 18vw;
+        // width: 18vw;
         border-radius: 8px;
+        position: relative;
       }
 
       .card .card-header {
@@ -406,21 +584,9 @@ import { NgxSuperDashboardService } from "./ngx-super-dashboard.service";
         margin-bottom: 12px;
       }
 
-      .horizontalTemp .card {
-        margin: 5px 6px 12px;
-        width: 20%;
-      }
-
-      .horizontalTemp .grid-area-countCards .card-content {
+      .grid-area-countCards .card-content {
         padding: 2px 10px 10px;
       }
-      // .horizontalTemp .grid-area-countCards .card-header {
-      //   // height: 45px;
-      //   height: 35px;
-      //   display: flex;
-      //   align-items: center;
-      //   justify-content: center;
-      // }
 
       .grid-area-countCards .card-header {
         // height: 45px;
@@ -435,86 +601,100 @@ import { NgxSuperDashboardService } from "./ngx-super-dashboard.service";
         font-size: 14px;
         color: #f0f2f4;
       }
-
       .grid-area-countCards {
-        grid-area: 1/1/-1/2;
-      }
-
-      .horizontalTemp .grid-area-countCards {
         grid-area: 1/1/2/-1;
         display: flex;
       }
 
-      .grid-area-chart {
-        grid-area: 1/2/2/4;
-        display: grid;
-      }
-
       .grid-area-tableOne {
-        grid-area: 3/2/-1/4;
-      }
-
-      .grid-area-tableOne .card {
-        width: 40vw;
-        height: 40vh;
-      }
-
-      .horizontalTemp .grid-area-tableOne {
         grid-area: 3/1/-1/2;
+        position: relative;
+        display: flex;
+        transition: grid-area 0.3s ease-in-out;
       }
 
-      .horizontalTemp .gridTableOne {
+      .gridTableOne {
         grid-area: 3/1/-1/-1;
       }
 
-      .horizontalTemp .grid-area-tableOne .card {
-        width: 98%;
-        height: 250px;
-        max-height: 350px;
-        overflow: auto;
+      .grid-area-tableOne .card {
+        width: 100%;
+        height: 300px;
+        transition: width 0.3s ease-in-out, height 0.3s ease-in-out;
       }
 
-      .horizontalTemp .grid-area-chart {
-        grid-area: 2/1/3/-1;
+      .grid-area-chart {
+        position: relative;
         display: flex;
+        transition: grid-area 0.3s ease-in-out;
+      }
+
+      #expand0 {
+        // grid-area: 2/1/3/-1;
+        // width:100%;
+        grid-area: 2/1/3/2;
+      }
+
+      #expand1 {
+        grid-area: 2/2/3/-1;
+      }
+
+      .grid-area-chart:hover .resizer,
+      .grid-area-tableRecords:hover .resizer,
+      .grid-area-tableOne:hover .resizer {
+        visibility: visible;
       }
 
       .grid-area-chart .card {
-        width: 40vw;
-        height: 45vh;
-        padding-bottom: 8px;
-      }
-
-      .horizontalTemp .grid-area-chart .card {
-        width: 49%;
+        // width:49%;
+        width: 100%;
+        height: 300px;
+        // padding-bottom: 8px;
+        transition: width 0.3s ease-in-out, height 0.3s ease-in-out;
       }
 
       .grid-area-tableRecords {
-        grid-area: 1/4/-1/-1;
-      }
-
-      .horizontalTemp .grid-area-tableRecords {
         grid-area: 3/2/-1/-1;
+        position: relative;
+        display: flex;
+        transition: grid-area 0.3s ease-in-out;
       }
 
-      .horizontalTemp .gridTableTwo {
+      .gridTableTwo {
         grid-area: 3/1/-1/-1;
       }
 
       .grid-area-tableRecords .card {
-        overflow: auto;
-        width: 38vw;
-        height: 97%;
-      }
-
-      .horizontalTemp .grid-area-tableRecords .card {
-        width: 98%;
-        height: 250px;
-        max-height: 350px;
+        width: 100%;
+        height: 300px;
+        overflow: hidden;
+        transition: width 0.3s ease-in-out, height 0.3s ease-in-out;
       }
 
       .grid-area-tableRecords .card-content {
-        padding: 12px 10px;
+        height: 230px;
+        max-height: 1000px;
+        overflow: auto;
+        // scrollbar-width: none; /* For Firefox */
+        // -ms-overflow-style: none;
+      }
+      ::-webkit-scrollbar {
+        display: block;
+        width: 8px; /* Width of the scrollbar */
+        height: 8px; /* Height of the scrollbar (for horizontal scrollbars) */
+      }
+
+      ::-webkit-scrollbar-thumb {
+        background: rgba(0, 0, 0, 0.2); /* Dark, slightly transparent thumb */
+        border-radius: 4px; /* Rounded corners */
+      }
+
+      ::-webkit-scrollbar-thumb:hover {
+        background: rgba(0, 0, 0, 0.4); /* Slightly darker on hover */
+      }
+
+      ::-webkit-scrollbar-track {
+        background: transparent; /* Transparent track */
       }
 
       .grid-table {
@@ -609,23 +789,18 @@ import { NgxSuperDashboardService } from "./ngx-super-dashboard.service";
         border-bottom-width: var(--card-border-width) !important;
         border-bottom-style: solid;
       }
-      .grid-area-expand {
-        grid-area: 1/2/3/-1;
-      }
-      .grid-area-expand .card {
-        width: 100%;
-        height: 54vh;
-      }
+      
     `,
   ],
 })
 export class NgxSuperDashboardComponent implements OnInit {
-  public dynamicForm: FormGroup
+  public dynamicForm: FormGroup;
+  showIcon: boolean = true;
+
   @Input()
   dynamicFormFieldData: DynamicFieldsData[];
 
   @Input() cardConfig: DynamicCardsData[];
-
   @Input() chartsConfig: DashardCardConfig[];
   @Input() gridOneConfig: CardTableConfig;
   @Input() gridTwoConfig: GridTableConfigData;
@@ -633,27 +808,42 @@ export class NgxSuperDashboardComponent implements OnInit {
   @Input()
   noteText!: string;
 
+  cardColors: string[] = CardsColors;
+
   @Output() onSelect = new EventEmitter<SelectedFieldValueEmit>();
   @Output() onSubmit = new EventEmitter<Record<string, string | number>>();
-  @Output() onSelectTemplate = new EventEmitter<string>();
   @Output() onSelectChart = new EventEmitter<ChartEventEmitOnSelect>();
-
-  constructor(
-    private ngxService: NgxSuperDashboardService
+ 
+  constructor(private ngxService: NgxSuperDashboardService, 
   ) {
-    console.log(`NgxSuperDashboardComponent : constructor`);
   }
 
   ngOnInit() {
     //create dynamic fields and add validation for each field
     this.createForm();
+ }
 
-    //add colors to Count Cards
-    let colors: string[] = CardsColors;
-    if (this.cardConfig.length > 0) {
-      this.cardConfig.forEach((el, i) => {
-        el["color"] = colors[i];
-      });
+  toggleExpand(index, idName) {
+    const content = document.getElementById(idName);
+    if (content.classList.contains("expanded")) {
+      content.classList.remove("expanded");
+      this.showIcon = !this.showIcon;
+      for (let i = 0; i < 4; i++) {
+        if (i != index) {
+          let hideContent = document.getElementById("expand" + i);
+          hideContent.classList.remove("hideGrids");
+        }
+      }
+    } else {
+      content.classList.add("expanded");
+      this.showIcon = !this.showIcon;
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      for (let i = 0; i < 4; i++) {
+        if (i != index) {
+          let hideContent = document.getElementById("expand" + i);
+          hideContent.classList.add("hideGrids");
+        }
+      }
     }
   }
 
@@ -662,7 +852,8 @@ export class NgxSuperDashboardComponent implements OnInit {
     this.dynamicFormFieldData.forEach((field: DynamicFieldsData) => {
       formGrp = {
         ...formGrp,
-        [field.formControlKey]: ["",
+        [field.formControlKey]: [
+          field.selected ? field.selected : "",
           Validators.compose([Validators.required]),
         ],
       };
@@ -670,7 +861,6 @@ export class NgxSuperDashboardComponent implements OnInit {
     this.dynamicForm = new FormBuilder().group(formGrp);
     this.ngxService.getFormGroup = this.dynamicForm;
   }
-
 
   // emit selected field value
   seletedValue(ev: any) {
@@ -742,6 +932,7 @@ export interface DynamicFieldsData {
   formControlKey: string;
   lovDataList?: AppLOVData[];
   type?: string;
+  selected?: string | number;
   className?: string;
 }
 
@@ -799,7 +990,7 @@ export const testChartsData: DashardCardConfig[] = [
 
       chartOptions: {
         title: `Monthly Wise`,
-        chartArea: { width: "50%" },
+        chartArea: { width: "70%", height: "70%" },
         hAxis: {
           title: `Modules`,
           minValue: 0,
